@@ -3,8 +3,8 @@
 ### Provides the following Rest Services
 ```
 URL                           HTTP Method  Operation
-/api/contacts                 GET          Returns an array of contacts
-/api/contacts/12              GET          Returns the contact with id of 12
-/api/contacts                 POST         Adds a new contact and return it with an id attribute added
-/api/contacts/12              PUT          Updates the contact with id of 12
+/index.php/users              GET          Returns an array of all users
+/index.php/users/2            GET          Returns the user with id of 2
+/index.php/users              POST         Adds a new user and return it with an id attribute added
+/index.php/users/2            PUT          Updates the user with id of 2
 ```
