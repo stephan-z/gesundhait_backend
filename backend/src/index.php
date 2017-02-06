@@ -4,50 +4,40 @@
 		
 	// Get the HTTP method, path and body of the request
 	$httpMethod = $_SERVER['REQUEST_METHOD'];
-	$request = explode('/', trim($_SERVER['PATH_INFO'],'/'));
-	$httpInput = json_decode(file_get_contents('php://input'),false);
-	 
+	$httpPath = explode('/', trim($_SERVER['PATH_INFO'],'/'));
+	$httpInput = json_decode(file_get_contents('php://input'),true);
+	
 	// Connect to the mysql database
-	$link = getDBConnection();
+	$dbConnection = getDBConnection();
 	 
-	// retrieve the table and key from the path
-	$table = preg_replace('/[^a-z0-9_]+/i','',array_shift($request));
-	$key = array_shift($request)+0;
+	// Retrieve the table and key from the path
+	$httpTable = preg_replace('/[^a-z0-9_]+/i','',array_shift($httpPath));
+	$httpKey = array_shift($httpPath)+0;
 	 	
 	// On POST, PUT and DELETE create String for SQL set
 	if(!empty($httpInput))
 	{
-		if($table == "users")
+		if($httpTable == "users")
 		{
-			$set = '';
-			$set.= "u_surname = \"".$httpInput->User->u_surname."\", ";
-			$set.= "u_forename = \"".$httpInput->User->u_forename."\", ";
-			$set.= "u_number = \"".$httpInput->User->u_number."\", ";
-			$set.= "u_mail = \"".$httpInput->User->u_mail."\", ";
-			$set.= "u_username = \"".$httpInput->User->u_username."\", ";
-			$set.= "u_password = \"".$httpInput->User->u_password."\", ";
-			$set.= "u_active = ".($httpInput->User->u_active==1?"true":"false").", ";
-			$set.= "u_created= \"".$httpInput->User->u_created."\"";			
+			$set = getUserSQLSetStringFromHttpInput($httpInput);			
 		}
 	}	 
 	 
-	// create SQL based on HTTP method
+	// Create SQL based on HTTP method
 	switch ($httpMethod) {
 	  case 'GET':
-		$sql = "select * from `$table`".($key?" WHERE id=$key":'');
+		$sql = "SELECT * FROM `$httpTable`".($httpKey?" WHERE ID = $httpKey":'');
 		break;
 	  case 'PUT':
-		$sql = "update `$table` set $set where id=$key";
+		$sql = "UPDATE `$httpTable` SET $set WHERE ID = $httpKey";
 		break;
 	  case 'POST':
-		$sql = "insert into `$table` set $set";
+		$sql = "INSERT INTO `$httpTable` SET $set";
 		break;
-	  /*case 'DELETE':
-		$sql = "delete `$table` where id=$key"; break;*/
 	}
 	 
 	// Excecute SQL statement
-	$result = mysqli_query($link,$sql);
+	$result = mysqli_query($dbConnection,$sql);
 	 
 	// Die if SQL Statement failed
 	if (!$result)
@@ -59,24 +49,24 @@
 	// Print results, insert id or affected row count
 	if ($httpMethod == 'GET') 
 	{
-		if (!$key) echo "{\"Users\":[";
+		if (!$httpKey) echo "{\"$usersJSON\":[";
 		$rowCount = mysqli_num_rows($result);
 		for ($i=0;$i<$rowCount;$i++) 
 		{
 			$user = convertSQLResultToUserObject($result);
 			if($i > 0) echo ",";
-			echo "{"."\"User\":".json_encode($user)."}";
+			echo "{"."\"$userJSON\":".json_encode($user)."}";
 		}			
-		if (!$key) echo "]}";
+		if (!$httpKey) echo "]}";
 	} 
 	elseif ($httpMethod == 'POST') 
 	{
-	  echo mysqli_insert_id($link);
+	  echo mysqli_insert_id($dbConnection);
 	} 
 	else // PUT, DELETE etc. 
 	{
-	  echo mysqli_affected_rows($link);
+	  echo mysqli_affected_rows($dbConnection);
 	}
 	 
 	// Close MySql Connection
-	closeDBConnection($link);
+	closeDBConnection($dbConnection);
