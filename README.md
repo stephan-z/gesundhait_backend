@@ -14,14 +14,14 @@ URL                           HTTP Method  Operation
 {
 	"User":
 	{
-		"ID": string,
+		"ID": int,
 		"u_surname": string,	
 		"u_forename": string,
 		"u_number": string,
 		"u_mail": string,
 		"u_username": string,
 		"u_password": string,
-		"u_active": string,
+		"u_active": boolean,
 		"u_created": string
 	}
 }
@@ -35,7 +35,7 @@ URL                           HTTP Method  Operation
 		{
 			"User":
 			{
-				"ID": string,
+				"ID": int,
 				"u_surname": string,	
 				"u_forename": string,
 				"u_number": string,
@@ -49,14 +49,14 @@ URL                           HTTP Method  Operation
 		{
 			"User":
 			{
-				"ID": string,
+				"ID": int,
 				"u_surname": string,	
 				"u_forename": string,
 				"u_number": string,
 				"u_mail": string,
 				"u_username": string,
 				"u_password": string,
-				"u_active": string,
+				"u_active": boolean,
 				"u_created": string
 			}
 		}

@@ -24,6 +24,6 @@ CREATE TABLE users
  
 /* Einfügen von BeispielDaten */
 INSERT INTO users (u_surname, u_forename, u_number, u_mail, u_username, u_password, u_active) 
-	VALUES ('Mustermann','Max',0511123456,'blub@www.de','bv', '123456', TRUE);
+	VALUES ('Mustermann','Max','0511123456','blub@www.de','bv', '123456', TRUE);
 INSERT INTO users (u_surname, u_forename, u_number, u_mail, u_username, u_password, u_active) 
-	VALUES ('Mueller','Peter',0511654321,'bla@www.de','bv', '123456', TRUE);
+	VALUES ('Mueller','Peter','0511654321','bla@www.de','bv', '123456', TRUE);

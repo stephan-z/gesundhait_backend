@@ -1,10 +1,11 @@
 <?php
 	include 'sqlconnect.php';
+	include 'commonFunctions.php';
 		
 	// Get the HTTP method, path and body of the request
 	$httpMethod = $_SERVER['REQUEST_METHOD'];
 	$request = explode('/', trim($_SERVER['PATH_INFO'],'/'));
-	$httpInput = json_decode(file_get_contents('php://input'),true);
+	$httpInput = json_decode(file_get_contents('php://input'),false);
 	 
 	// Connect to the mysql database
 	$link = getDBConnection();
@@ -13,21 +14,20 @@
 	$table = preg_replace('/[^a-z0-9_]+/i','',array_shift($request));
 	$key = array_shift($request)+0;
 	 	
-	// escape the columns and values from the input object
+	// On POST, PUT and DELETE create String for SQL set
 	if(!empty($httpInput))
 	{
-		$columns = preg_replace('/[^a-z0-9_]+/i','',array_keys($httpInput));
-		$values = array_map(function ($value) use ($link) {
-		  if ($value===null) return null;
-		  return mysqli_real_escape_string($link,(string)$value);
-		},array_values($httpInput));
-		
-		// build the SET part of the SQL command
-		$set = '';
-		for ($i=0;$i<count($columns);$i++) 		
+		if($table == "users")
 		{
-		  $set.=($i>0?',':'').'`'.$columns[$i].'`=';
-		  $set.=($values[$i]===null?'NULL':'"'.$values[$i].'"');
+			$set = '';
+			$set.= "u_surname = \"".$httpInput->User->u_surname."\", ";
+			$set.= "u_forename = \"".$httpInput->User->u_forename."\", ";
+			$set.= "u_number = \"".$httpInput->User->u_number."\", ";
+			$set.= "u_mail = \"".$httpInput->User->u_mail."\", ";
+			$set.= "u_username = \"".$httpInput->User->u_username."\", ";
+			$set.= "u_password = \"".$httpInput->User->u_password."\", ";
+			$set.= "u_active = ".($httpInput->User->u_active==1?"true":"false").", ";
+			$set.= "u_created= \"".$httpInput->User->u_created."\"";			
 		}
 	}	 
 	 
@@ -37,7 +37,7 @@
 		$sql = "select * from `$table`".($key?" WHERE id=$key":'');
 		break;
 	  case 'PUT':
-		$sql = "update `$table` set $set where id=$key"; 
+		$sql = "update `$table` set $set where id=$key";
 		break;
 	  case 'POST':
 		$sql = "insert into `$table` set $set";
@@ -53,7 +53,7 @@
 	if (!$result)
 	{
 	  http_response_code(404);
-	  die(mysqli_error());
+	  die("Error 1001: SQL Statement Failed!");
 	}
 	
 	// Print results, insert id or affected row count
@@ -63,7 +63,7 @@
 		$rowCount = mysqli_num_rows($result);
 		for ($i=0;$i<$rowCount;$i++) 
 		{
-			$user = mysqli_fetch_object($result);
+			$user = convertSQLResultToUserObject($result);
 			if($i > 0) echo ",";
 			echo "{"."\"User\":".json_encode($user)."}";
 		}			
