@@ -6,14 +6,18 @@
 	$httpMethod = $_SERVER['REQUEST_METHOD'];
 	$httpPath = explode('/', trim($_SERVER['PATH_INFO'],'/'));
 	$httpInput = json_decode(file_get_contents('php://input'),true);
-	
-	// Connect to the mysql database
-	$dbConnection = getDBConnection();
 	 
 	// Retrieve the table and key from the path
 	$httpTable = preg_replace('/[^a-z0-9_]+/i','',array_shift($httpPath));
 	$httpKey = array_shift($httpPath)+0;
 	 	
+	// Check if the request is correct
+	if(empty($httpTable) || $httpTable != $httpTableUsers)
+	{
+	  http_response_code(404);
+	  die("Wrong HTTP Rest Request!");		
+	}
+		
 	// On POST, PUT and DELETE create String for SQL set
 	if(!empty($httpInput))
 	{
@@ -23,6 +27,9 @@
 		}
 	}	 
 	 
+	// Connect to the mysql database
+	$dbConnection = getDBConnection();
+	
 	// Create SQL based on HTTP method
 	switch ($httpMethod) {
 	  case 'GET':
@@ -43,7 +50,7 @@
 	if (!$sqlResult)
 	{
 	  http_response_code(404);
-	  die("Error 1001: SQL Statement Failed!");
+	  die("SQL Statement Failed!");
 	}
 	
 	// Print results, insert id or affected row count
