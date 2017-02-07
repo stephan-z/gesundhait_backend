@@ -1,5 +1,20 @@
 # GesundHait Backend
 
+- [Backend] (https://github.com/stephan-z/gesundhait_backend)
+- [App] (https://github.com/stephan-z/gesundhait_app)
+
+### Description
+GesundHaiT is a private, non-commercial Project, developed by Stephan Ziesenis, Student of Health-Informatics at Heidelberg University & Heilbronn University.
+
+The GesundHaiT Project is a Health App that provides tips for your daily Health, based on your everyday behaviour.
+Therefore it connects to the Backend to store and retrieve Data from the MySQL-Database. 
+The GesundHaiT Backend therefore provides a simple REST-Service.
+
+### GesundHaiT-Backend is developed in PHP using Notepad++
+#### GesundHaiT-Backend uses:
+- XAMPP for local Apache and MariaDB/MySQL Server
+- 'Rest Easy' Firefox Add-on for HTTP Service testing
+
 ### Provides the following Rest Services
 ```
 URL                           HTTP Method  Operation

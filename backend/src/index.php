@@ -1,7 +1,7 @@
 <?php
 	include 'sqlconnect.php';
-	include 'commonFunctions.php';
-		
+	include 'userFunctions.php';
+	
 	// Get the HTTP method, path and body of the request
 	$httpMethod = $_SERVER['REQUEST_METHOD'];
 	$httpPath = explode('/', trim($_SERVER['PATH_INFO'],'/'));
@@ -17,7 +17,7 @@
 	// On POST, PUT and DELETE create String for SQL set
 	if(!empty($httpInput))
 	{
-		if($httpTable == "users")
+		if($httpTable == $httpTableUsers)
 		{
 			$set = getUserSQLSetStringFromHttpInput($httpInput);			
 		}
@@ -26,21 +26,21 @@
 	// Create SQL based on HTTP method
 	switch ($httpMethod) {
 	  case 'GET':
-		$sql = "SELECT * FROM `$httpTable`".($httpKey?" WHERE ID = $httpKey":'');
+		$sqlStatement = "SELECT * FROM `$httpTable`".($httpKey?" WHERE ID = $httpKey":'');
 		break;
 	  case 'PUT':
-		$sql = "UPDATE `$httpTable` SET $set WHERE ID = $httpKey";
+		$sqlStatement = "UPDATE `$httpTable` SET $set WHERE ID = $httpKey";
 		break;
 	  case 'POST':
-		$sql = "INSERT INTO `$httpTable` SET $set";
+		$sqlStatement = "INSERT INTO `$httpTable` SET $set";
 		break;
 	}
 	 
 	// Excecute SQL statement
-	$result = mysqli_query($dbConnection,$sql);
+	$sqlResult = mysqli_query($dbConnection,$sqlStatement);
 	 
 	// Die if SQL Statement failed
-	if (!$result)
+	if (!$sqlResult)
 	{
 	  http_response_code(404);
 	  die("Error 1001: SQL Statement Failed!");
@@ -49,24 +49,21 @@
 	// Print results, insert id or affected row count
 	if ($httpMethod == 'GET') 
 	{
-		if (!$httpKey) echo "{\"$usersJSON\":[";
-		$rowCount = mysqli_num_rows($result);
-		for ($i=0;$i<$rowCount;$i++) 
+		if($httpTable == $httpTableUsers)
 		{
-			$user = convertSQLResultToUserObject($result);
-			if($i > 0) echo ",";
-			echo "{"."\"$userJSON\":".json_encode($user)."}";
-		}			
-		if (!$httpKey) echo "]}";
+			if (!$httpKey) echo "{\"$usersJSON\":[";
+			$rowCount = mysqli_num_rows($sqlResult);
+			for ($i=0;$i<$rowCount;$i++) 
+			{
+				$user = convertSQLResultToUserObject($sqlResult);
+				if($i > 0) echo ",";
+				echo "{"."\"$userJSON\":".json_encode($user)."}";
+			}			
+			if (!$httpKey) echo "]}";			
+		}
 	} 
-	elseif ($httpMethod == 'POST') 
-	{
-	  echo mysqli_insert_id($dbConnection);
-	} 
-	else // PUT, DELETE etc. 
-	{
-	  echo mysqli_affected_rows($dbConnection);
-	}
+	elseif ($httpMethod == 'POST') echo mysqli_insert_id($dbConnection);
+	else echo mysqli_affected_rows($dbConnection);// PUT, DELETE etc. 
 	 
 	// Close MySql Connection
 	closeDBConnection($dbConnection);
