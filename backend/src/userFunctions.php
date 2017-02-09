@@ -5,12 +5,21 @@
 	$userJSON = 'User';
 	
 	// Convert SQL Result-User to User Object; int and boolean casting
-	function convertSQLResultToUserObject($sqlResult)
-	{		
-		$user = mysqli_fetch_object($sqlResult);
-		$user->ID = (int)$user->ID;
-		$user->u_active = ($user->u_active == 1?true:false);
-		return $user;
+	function outputUsersResult($httpKey, $sqlResult)
+	{	
+		global $usersJSON;
+		global $userJSON;		
+		if (!$httpKey) echo "{\"$usersJSON\":[";
+		$rowCount = mysqli_num_rows($sqlResult);
+		for ($i=0;$i<$rowCount;$i++) 
+		{
+			$user = mysqli_fetch_object($sqlResult);
+			$user->ID = (int)$user->ID;
+			$user->u_active = ($user->u_active == 1?true:false);
+			if($i > 0) echo ",";
+			echo "{"."\"$userJSON\":".json_encode($user)."}";
+		}			
+		if (!$httpKey) echo "]}";
 	}
 	
 	function getUserSQLSetStringFromHttpInput($httpInput)

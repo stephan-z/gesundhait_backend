@@ -58,15 +58,7 @@
 	{
 		if($httpTable == $httpTableUsers)
 		{
-			if (!$httpKey) echo "{\"$usersJSON\":[";
-			$rowCount = mysqli_num_rows($sqlResult);
-			for ($i=0;$i<$rowCount;$i++) 
-			{
-				$user = convertSQLResultToUserObject($sqlResult);
-				if($i > 0) echo ",";
-				echo "{"."\"$userJSON\":".json_encode($user)."}";
-			}			
-			if (!$httpKey) echo "]}";			
+			outputUsersResult($httpKey, $sqlResult);		
 		}
 	} 
 	elseif ($httpMethod == 'POST') echo mysqli_insert_id($dbConnection);
